@@ -7,55 +7,33 @@ local left = false
 local down = false
 local right = false
 
+local speed = 500
+
 love.draw = function()
-    update_coords()
     -- Initialize the square with the default color (white)
     love.graphics.setColor(current_color)
     -- Draw the square
-    love.graphics.rectangle('fill', 100 + current_x, 100 + current_y, 100, 100)
+    love.graphics.rectangle('fill', 100 + current_x, 100 + current_y, 40, 40)
 end
 
-update_coords = function()
-    if up then
-        current_y = current_y - 10
-    end
-    if left then
-        current_x = current_x - 10
-    end
-    if down then
-        current_y = current_y + 10
-    end
-    if right then
-        current_x = current_x + 10
-    end
-end
 
 love.keypressed = function(pressed_key)
-    print('key was pressed:', pressed_key)
-
-    if pressed_key == 'w' then
-        up = true
-    elseif pressed_key == 'a' then
-        left = true
-    elseif pressed_key == 's' then
-        down = true
-    elseif pressed_key == 'd' then
-        right = true
-    elseif pressed_key == 'escape' then
+    if pressed_key == 'escape' then
         love.event.quit()
     end
 end
 
-love.keyreleased = function(released_key)
-    print('key was release:', released_key)
-
-    if released_key == 'w' then
-        up = false
-    elseif released_key == 'a' then
-        left = false
-    elseif released_key == 's' then
-        down = false
-    elseif released_key == 'd' then
-        right = false
+love.update = function(dt)
+    if love.keyboard.isDown("w") then
+        current_y = current_y - (dt * speed)
+    end
+    if love.keyboard.isDown("a") then
+        current_x = current_x - (dt * speed)
+    end
+    if love.keyboard.isDown("s") then
+        current_y = current_y + (dt * speed)
+    end
+    if love.keyboard.isDown("d") then
+        current_x = current_x + (dt * speed)
     end
 end
