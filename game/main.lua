@@ -1,12 +1,23 @@
 local world = require('world')
 local player = require('entities/player')
+local boundary = require('entities.boundary')
 
-
-love.draw = function ()
-  love.graphics.polygon('line', player.body:getWorldPoints(player.shape:getPoints()))
+love.load = function ()
+    -- Screen dimensions
+    screenWidth, screenHeight = love.graphics.getDimensions()
 end
 
--- Boolean to keep track of whether our game is paused or not
+love.draw = function ()
+    local px, py = player.body:getPosition()
+    love.graphics.push()
+    love.graphics.translate(screenWidth / 2 - px, screenHeight / 2 - py)
+
+    player:draw()
+    boundary:draw()
+
+    love.graphics.pop()
+end
+
 local paused = false
 
 local key_map = {
@@ -19,8 +30,6 @@ local key_map = {
 }
 
 love.keypressed = function(pressed_key)
-  -- Check in the key map if there is a function
-  -- that matches this pressed key's name
   if key_map[pressed_key] then
     key_map[pressed_key]()
   end
