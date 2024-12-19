@@ -4,13 +4,14 @@ local boundary = require('entities.boundary')
 
 love.load = function ()
     -- Screen dimensions
-    screenWidth, screenHeight = love.graphics.getDimensions()
+    screen_width, screen_height = love.graphics.getDimensions()
 end
 
 love.draw = function ()
     local px, py = player.body:getPosition()
     love.graphics.push()
-    love.graphics.translate(screenWidth / 2 - px, screenHeight / 2 - py)
+    love.graphics.translate(screen_width / 2 - px, screen_height / 2 - py)
+
 
     player:draw()
     boundary:draw()
