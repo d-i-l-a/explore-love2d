@@ -1,25 +1,17 @@
-local gun = {}
+-- Gun.lua
+local Gun = {}
+Gun.__index = Gun
 
-cooldown_in_sec = 1
-d_total = 0
-gun.update = function(dt, player)
-    d_total = d_total + dt
-    if d_total >= cooldown_in_sec then
-        d_total = d_total - cooldown_in_sec
-        gun.shoot(player)
-    end
+Bullet = require('entities.weapons.gun.bullet')
 
-    -- Update the position of each circle
-    for _, circle in ipairs(circles) do
-        circle.x = circle.x + circle.vx * dt
-        circle.y = circle.y + circle.vy * dt
-    end
+function Gun.new(cooldown, speed)
+    local self = setmetatable({}, Gun)
+    self.cooldown_in_sec = cooldown or 1
+    self.speed = speed or 100
+    self.d_total = 0
+    self.bullets = {}
+    return self
 end
-
-circles = {}
-
--- Parameters for velocity and angle
-speed = 100
 
 local orientation_degree_map = {
     [UP] = 270,
@@ -32,32 +24,35 @@ local orientation_degree_map = {
     [DOWN_LEFT] = 135
 }
 
+function Gun:update(dt, player)
+    self.d_total = self.d_total + dt
+    if self.d_total >= self.cooldown_in_sec then
+        self.d_total = self.d_total - self.cooldown_in_sec
+        self:shoot(player)
+    end
 
-
-
-
-gun.shoot = function(player)
-    print('shoot')
-    local circle = {}
-    local px, py = player.body:getPosition()
-    circle.x = px -- Starting x position (center of the screen)
-    circle.y = py -- Starting y position (center of the screen)
-    circle.radius = 10 -- Radius of the circle
-    local angle = math.rad(orientation_degree_map[player.current_orientation]) -- 45 degrees in radians
-    circle.vx = speed * math.cos(angle) -- Velocity in the x-direction
-    circle.vy = speed * math.sin(angle) -- Velocity in the y-direction
-
-    -- Add the new circle to the circles table
-    table.insert(circles, circle)
-end
-
-
-gun.draw = function()
-    love.graphics.setColor(0, 1, 0) -- Green
-    for _, circle in ipairs(circles) do
-        love.graphics.circle("fill", circle.x, circle.y, circle.radius)
+    for i = #self.bullets, 1, -1 do
+        local bullet = self.bullets[i]
+        bullet:update(dt)
+        if bullet:isExpired() then
+            bullet:destroy() -- Clean up physics resources
+            table.remove(self.bullets, i)
+        end
     end
 end
 
+function Gun:shoot(player)
+    local px, py = player.body:getPosition()
+    local angle = math.rad(orientation_degree_map[player.current_orientation]) -- Direction in radians
+    local bullet = Bullet.new(px, py, angle, self.speed)
+    table.insert(self.bullets, bullet)
+end
 
-return gun
+function Gun:draw()
+    love.graphics.setColor(0, 1, 0) -- Green
+    for _, bullet in ipairs(self.bullets) do
+        bullet:draw()
+    end
+end
+
+return Gun

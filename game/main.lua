@@ -1,22 +1,29 @@
 local world = require('world')
 local player = require('entities/player')
-local boundary = require('entities.boundary')
+local Structure = require('entities.structure')
 
-love.load = function ()
-    -- Screen dimensions
-    screen_width, screen_height = love.graphics.getDimensions()
+structures = {}
+
+love.load = function()
+  screen_width, screen_height = love.graphics.getDimensions()
+  table.insert(structures, Structure.new(100, 100, 70))
+  table.insert(structures, Structure.new(100, 200, 50))
+  table.insert(structures, Structure.new(100, 300, 100))
+  table.insert(structures, Structure.new(100, 400, 70))
 end
 
-love.draw = function ()
-    local px, py = player.body:getPosition()
-    love.graphics.push()
-    love.graphics.translate(screen_width / 2 - px, screen_height / 2 - py)
+love.draw = function()
+  love.graphics.clear(1, 1, 1)   -- White background (R=1, G=1, B=1)
+  local px, py = player.body:getPosition()
+  love.graphics.push()
+  love.graphics.translate(screen_width / 2 - px, screen_height / 2 - py)
 
 
-    player:draw()
-    boundary:draw()
-
-    love.graphics.pop()
+  player:draw()
+  for _, structure in ipairs(structures) do
+    structure:draw()
+  end
+  love.graphics.pop()
 end
 
 local paused = false

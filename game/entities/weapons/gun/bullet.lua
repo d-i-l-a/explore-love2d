@@ -1,27 +1,56 @@
--- Declare circle entity
-local circle = {}
-local speed = 400 -- Velocity in pixels per second
-local angle = math.rad(45) -- Angle in radians (e.g., 45 degrees)
+local Bullet = {}
+Bullet.__index = Bullet
 
-function love.load()
-    -- Initialize the circle entity
-    circle.x = 400 -- Initial x position
-    circle.y = 300 -- Initial y position
-    circle.radius = 20 -- Radius of the circle
+local world = require('world')
 
-    -- Calculate the velocity components from the angle and speed
-    circle.vx = speed * math.cos(angle) -- Velocity in the x-direction
-    circle.vy = speed * math.sin(angle) -- Velocity in the y-direction
+function Bullet.new(x, y, angle, speed, radius, lifetime)
+    local self = setmetatable({}, Bullet)
+
+    self.type = "bullet"
+    self.destroyed = false
+
+    -- Physics properties
+    self.body = love.physics.newBody(world, x, y, "dynamic")      -- Dynamic body
+    self.shape = love.physics.newCircleShape(radius or 10)        -- Circle shape
+    self.fixture = love.physics.newFixture(self.body, self.shape) -- Attach the shape to the body
+    self.fixture:setUserData(self)                                -- Store a reference to the bullet itself in the fixture
+
+    -- Set collision category and mask
+    self.fixture:setCategory(2) -- Category 2: Bullets
+    self.fixture:setMask(1)     -- Exclude Category 1: Player
+    self.fixture:setMask(2)     -- Exclude Category 2: Bullet
+
+    -- Initial velocity
+    local vx = speed * math.cos(angle)
+    local vy = speed * math.sin(angle)
+    self.body:setLinearVelocity(vx, vy)
+
+    -- Entity properties
+    self.lifetime = lifetime or 5 -- Lifetime in seconds
+    self.age = 0                  -- Current age
+    return self
 end
 
-function love.update(dt)
-    -- Update the position of the circle based on its velocity
-    circle.x = circle.x + circle.vx * dt
-    circle.y = circle.y + circle.vy * dt
+function Bullet:update(dt)
+    self.age = self.age + dt -- Increment age
 end
 
-function love.draw()
-    -- Draw the circle at the updated position
-    love.graphics.setColor(1, 0, 0) -- Set the color to red
-    love.graphics.circle("fill", circle.x, circle.y, circle.radius)
+function Bullet:isExpired()
+    return self.age >= self.lifetime
 end
+
+function Bullet:draw()
+    if not self.destroyed then
+        love.graphics.setColor(0, 1, 0) -- Green
+        love.graphics.circle("fill", self.body:getX(), self.body:getY(), self.shape:getRadius())
+    end
+end
+
+function Bullet:destroy()
+    if not self.destroyed then
+        self.body:destroy()
+        self.destroyed = true
+    end
+end
+
+return Bullet

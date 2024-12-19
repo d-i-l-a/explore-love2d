@@ -10,6 +10,9 @@ player.body:setMass(0)
 player.body:setFixedRotation(true)
 player.shape = love.physics.newRectangleShape(50, 50)
 player.fixture = love.physics.newFixture(player.body, player.shape)
+-- Set collision category and mask
+player.fixture:setCategory(1) -- Category 1: Player
+player.fixture:setMask(2) -- Exclude Category 2: Bullets
 
 UP = 0
 UP_RIGHT = 1
@@ -41,25 +44,13 @@ local orientation_map = {
     [DOWN_LEFT] = left_texture
 }
 
-local orientation_string_map = {
-    [UP] = "UP",
-    [UP_RIGHT] = "UP_RIGHT",
-    [UP_LEFT] = "UP_LEFT",
-    [LEFT] = "LEFT",
-    [RIGHT] = "RIGHT",
-    [DOWN] = "DOWN",
-    [DOWN_RIGHT] = "DOWN_RIGHT",
-    [DOWN_LEFT] = "DOWN_LEFT"
-}
+local Gun = require('entities.weapons.gun.gun')
+local gun = Gun.new(1, 400) -- Cooldown: 1 second, Speed: 100
 
-local gun = require('entities.weapons.gun.gun')
-player.weapons = {
-    gun
-}
 
 player.draw = function()
     love.graphics.draw(orientation_map[player.current_orientation], player.body:getPosition())
-    player.weapons[1].draw()
+    gun:draw()
 end
 
 
@@ -116,7 +107,7 @@ player.update_orientation = function()
 end
 
 player.update_weapons = function(dt)
-    player.weapons[1].update(dt, player)
+    gun:update(dt, player)
 end
 
 return player
