@@ -26,7 +26,7 @@ local left_texture = love.graphics.newImage("pngs/left.png")
 local right_texture = love.graphics.newImage("pngs/right.png")
 local down_texture = love.graphics.newImage("pngs/down.png")
 
-local rate_of_change = 20000
+local rate_of_change = 10000
 player.current_orientation = RIGHT
 
 
@@ -41,8 +41,25 @@ local orientation_map = {
     [DOWN_LEFT] = left_texture
 }
 
+local orientation_string_map = {
+    [UP] = "UP",
+    [UP_RIGHT] = "UP_RIGHT",
+    [UP_LEFT] = "UP_LEFT",
+    [LEFT] = "LEFT",
+    [RIGHT] = "RIGHT",
+    [DOWN] = "DOWN",
+    [DOWN_RIGHT] = "DOWN_RIGHT",
+    [DOWN_LEFT] = "DOWN_LEFT"
+}
+
+local gun = require('entities.weapons.gun.gun')
+player.weapons = {
+    gun
+}
+
 player.draw = function()
     love.graphics.draw(orientation_map[player.current_orientation], player.body:getPosition())
+    player.weapons[1].draw()
 end
 
 
@@ -50,6 +67,7 @@ end
 player.update = function(dt)
     player.move(dt)
     player.update_orientation()
+    player.update_weapons(dt)
 end
 
 player.move = function(dt)
@@ -80,7 +98,7 @@ player.update_orientation = function()
     if love.keyboard.isDown("w") and love.keyboard.isDown("d") and not love.keyboard.isDown("s") and not love.keyboard.isDown("a") then
         player.current_orientation = UP_RIGHT
     end
-    if love.keyboard.isDown("a") and not love.keyboard.isDown("s") and not love.keyboard.isDown("s") and not love.keyboard.isDown("d") then
+    if love.keyboard.isDown("a") and not love.keyboard.isDown("w") and not love.keyboard.isDown("s") and not love.keyboard.isDown("d") then
         player.current_orientation = LEFT
     end
     if love.keyboard.isDown("s") and not love.keyboard.isDown("w") and not love.keyboard.isDown("a") and not love.keyboard.isDown("d") then
@@ -95,6 +113,10 @@ player.update_orientation = function()
     if love.keyboard.isDown("d") and not love.keyboard.isDown("w") and not love.keyboard.isDown("a") and not love.keyboard.isDown("s") then
         player.current_orientation = RIGHT
     end
+end
+
+player.update_weapons = function(dt)
+    player.weapons[1].update(dt, player)
 end
 
 return player

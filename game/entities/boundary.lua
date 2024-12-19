@@ -8,7 +8,8 @@ boundary.fixture = love.physics.newFixture(boundary.body, boundary.shape)
 
 
 boundary.draw = function()
-  love.graphics.polygon('line', boundary.body:getWorldPoints(boundary.shape:getPoints()))
+    love.graphics.setColor(1, 1, 1)
+    love.graphics.polygon('line', boundary.body:getWorldPoints(boundary.shape:getPoints()))
 end
 
 return boundary
