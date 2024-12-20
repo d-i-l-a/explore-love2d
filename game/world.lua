@@ -1,7 +1,13 @@
+
 local function begin_contact_callback(a, b, coll)
     local objectA = a:getUserData()
     local objectB = b:getUserData()
-    print(objectA.type, objectB.type)
+    if not objectA then
+       return
+    end
+    if not objectB then
+       return
+    end
 
     -- Check if a bullet hits a structure
     if objectA and objectB then

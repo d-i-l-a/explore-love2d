@@ -49,6 +49,7 @@ local gun = Gun.new(1, 400) -- Cooldown: 1 second, Speed: 100
 
 
 player.draw = function()
+    love.graphics.setColor(0, 1, 0) -- Green
     love.graphics.draw(orientation_map[player.current_orientation], player.body:getPosition())
     gun:draw()
 end

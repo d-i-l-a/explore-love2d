@@ -1,15 +1,11 @@
 local world = require('world')
 local player = require('entities/player')
-local Structure = require('entities.structure')
+local enemy_manager = require('enemy_manager')
 
-structures = {}
 
 love.load = function()
   screen_width, screen_height = love.graphics.getDimensions()
-  table.insert(structures, Structure.new(100, 100, 70))
-  table.insert(structures, Structure.new(100, 200, 50))
-  table.insert(structures, Structure.new(100, 300, 100))
-  table.insert(structures, Structure.new(100, 400, 70))
+
 end
 
 love.draw = function()
@@ -18,11 +14,9 @@ love.draw = function()
   love.graphics.push()
   love.graphics.translate(screen_width / 2 - px, screen_height / 2 - py)
 
-
   player:draw()
-  for _, structure in ipairs(structures) do
-    structure:draw()
-  end
+  enemy_manager:draw()
+
   love.graphics.pop()
 end
 
@@ -47,5 +41,6 @@ love.update = function(dt)
   if not paused then
     world:update(dt)
     player.update(dt)
+    enemy_manager:update()
   end
 end
